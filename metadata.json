@@ -1,0 +1,8 @@
+{
+    "name": "Claude Meter",
+    "description": "Display Claude usage (5-hour and weekly windows) in the GNOME top bar. Reads OAuth token from ~/.claude/.credentials.json and queries the official Anthropic API.",
+    "uuid": "claude-meter@jairhdez",
+    "shell-version": ["49"],
+    "version": 1,
+    "url": "https://github.com/jairhdez/gnome-shell-extension-claude-meter"
+}

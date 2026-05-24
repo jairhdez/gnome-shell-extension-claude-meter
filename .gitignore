@@ -1,0 +1,17 @@
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (none right now, but reserved)
+*.zip
+dist/
+build/
+
+# Project context for Claude Code — not for the public repo
+CLAUDE.md

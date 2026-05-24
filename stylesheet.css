@@ -1,0 +1,50 @@
+.claude-meter-box {
+    spacing: 4px;
+}
+
+.claude-meter-label {
+    font-feature-settings: "tnum";
+    padding-right: 4px;
+}
+
+.claude-meter-normal {
+    color: #ffffff;
+}
+
+.claude-meter-yellow {
+    color: #f6d32d;
+}
+
+.claude-meter-orange {
+    color: #ff7800;
+}
+
+.claude-meter-red {
+    color: #ff4040;
+    font-weight: bold;
+}
+
+.claude-meter-section-title {
+    font-weight: bold;
+    color: #cccccc;
+}
+
+.claude-meter-section-value {
+    padding-left: 12px;
+}
+
+.claude-meter-section-bar {
+    padding-left: 12px;
+    font-family: monospace;
+}
+
+.claude-meter-section-detail {
+    padding-left: 12px;
+    color: #aaaaaa;
+    font-size: 0.9em;
+}
+
+.claude-meter-spacer {
+    min-height: 8px;
+    padding: 0;
+}
