@@ -4,6 +4,8 @@ A small GNOME Shell extension that shows your Claude usage (5-hour and weekly
 quota windows) in the top bar. Click the indicator for the per-window
 breakdown or to jump to `claude.ai/settings/usage`.
 
+![Top-bar indicator and popup](docs/screenshot.png)
+
 The label changes color as you approach your limits:
 
 | Highest window | Color |
