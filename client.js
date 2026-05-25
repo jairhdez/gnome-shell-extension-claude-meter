@@ -70,6 +70,26 @@ export function readAccountInfo() {
     return Object.keys(info).length > 0 ? info : null;
 }
 
+// GJS marshals Soup.Message status through the SoupStatus GEnum and throws on
+// codes that aren't in the introspection table (seen with 429 on libsoup 3.x).
+// Recover the numeric code from the error message so callers can handle the
+// real HTTP status instead of an opaque marshalling failure.
+function readStatusCode(msg) {
+    try {
+        return msg.get_status();
+    } catch (e) {
+        const m = String(e?.message ?? e).match(/(\d{3})/);
+        if (m) return parseInt(m[1], 10);
+        throw e;
+    }
+}
+
+function httpErrorMessage(status) {
+    if (status === 429) return 'Rate limited (HTTP 429) — try again later';
+    if (status === 401) return 'Unauthorized (HTTP 401) — token rejected';
+    return `HTTP ${status}`;
+}
+
 export class UsageClient {
     constructor() {
         this._session = new Soup.Session({user_agent: USER_AGENT, timeout: 15});
@@ -95,9 +115,9 @@ export class UsageClient {
             (session, result) => {
                 try {
                     const bytes = session.send_and_read_finish(result);
-                    const status = msg.get_status();
-                    if (status !== Soup.Status.OK) {
-                        callback(null, new Error(`HTTP ${status}`));
+                    const status = readStatusCode(msg);
+                    if (status !== 200) {
+                        callback(null, new Error(httpErrorMessage(status)));
                         return;
                     }
                     const json = JSON.parse(new TextDecoder().decode(bytes.get_data()));
