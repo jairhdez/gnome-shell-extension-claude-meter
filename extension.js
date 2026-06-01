@@ -178,7 +178,8 @@ const ClaudeMeterIndicator = GObject.registerClass(
             }
 
             const max = windows.reduce((a, b) => (a.pct >= b.pct ? a : b));
-            this._label.text = `${Math.round(max.pct)}%`;
+            const windowTag = max.label === 'week' ? '7d' : max.label;
+            this._label.text = `${Math.round(max.pct)}% (${windowTag})`;
             this._setColorClass(pickColorClass(max.pct));
 
             this._windowsSection.removeAll();

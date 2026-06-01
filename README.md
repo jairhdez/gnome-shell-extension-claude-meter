@@ -6,6 +6,15 @@ breakdown or to jump to `claude.ai/settings/usage`.
 
 ![Top-bar indicator and popup](docs/screenshot.png)
 
+The panel shows a **single percentage: whichever usage window is highest right
+now**, tagged with which window that is. So if your 5-hour session is at 4% and
+your weekly window is at 1%, the label reads `4% (5h)` — the larger of the two —
+because that's the limit you're closest to hitting; if the weekly window were
+higher it would read e.g. `12% (7d)`. The tag (`5h` for the rolling 5-hour
+session, `7d` for the weekly window) tells you at a glance which limit the
+number refers to. Click the indicator to see every window broken out
+individually (session, week, and the per-model weekly split).
+
 The label changes color as you approach your limits:
 
 | Highest window | Color |
