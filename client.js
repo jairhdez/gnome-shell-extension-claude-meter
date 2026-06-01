@@ -24,6 +24,10 @@ const USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
 const ANTHROPIC_BETA = 'oauth-2025-04-20';
 const USER_AGENT = 'claude-meter-gnome/1.0';
 
+// Skip the HTTP call when the access token is within this many ms of its
+// expiry, so we don't race a token that's about to die mid-flight.
+const EXPIRY_GRACE_MS = 30_000;
+
 export function credentialsPath() {
     return GLib.build_filenamev([GLib.get_home_dir(), '.claude', '.credentials.json']);
 }
@@ -32,16 +36,17 @@ function claudeJsonPath() {
     return GLib.build_filenamev([GLib.get_home_dir(), '.claude.json']);
 }
 
-export function readAccessToken() {
+export function readTokenInfo() {
     const path = credentialsPath();
     const [ok, bytes] = GLib.file_get_contents(path);
     if (!ok)
         throw new Error(`cannot read ${path}`);
-    const data = JSON.parse(new TextDecoder().decode(bytes));
-    const token = data?.claudeAiOauth?.accessToken;
+    const oauth = JSON.parse(new TextDecoder().decode(bytes))?.claudeAiOauth;
+    const token = oauth?.accessToken;
     if (!token)
         throw new Error('claudeAiOauth.accessToken missing in credentials.json');
-    return token;
+    const expiresAt = typeof oauth?.expiresAt === 'number' ? oauth.expiresAt : null;
+    return {token, expiresAt};
 }
 
 export function readAccountInfo() {
@@ -96,17 +101,22 @@ export class UsageClient {
     }
 
     fetchUsage(callback) {
-        let token;
+        let info;
         try {
-            token = readAccessToken();
+            info = readTokenInfo();
         } catch (e) {
             callback(null, e);
             return;
         }
 
+        if (info.expiresAt !== null && Date.now() >= info.expiresAt - EXPIRY_GRACE_MS) {
+            callback(null, new Error('Token expired — open Claude Code to refresh'));
+            return;
+        }
+
         const msg = Soup.Message.new('GET', USAGE_URL);
         const headers = msg.get_request_headers();
-        headers.append('Authorization', `Bearer ${token}`);
+        headers.append('Authorization', `Bearer ${info.token}`);
         headers.append('anthropic-beta', ANTHROPIC_BETA);
         headers.append('Accept', 'application/json');
 

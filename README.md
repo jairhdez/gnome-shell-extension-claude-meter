@@ -22,9 +22,10 @@ The label changes color as you approach your limits:
 - Claude Code installed and logged in. The extension reads two files from
   your home directory:
   - `~/.claude/.credentials.json` — OAuth access token (used as a Bearer
-    token) plus the `subscriptionType` and `rateLimitTier` fields shown in
-    the popup. Other fields in this file (including `refreshToken`) are
-    never read.
+    token), `expiresAt` (a local pre-flight check so we skip the HTTP call
+    when the token is already expired), plus the `subscriptionType` and
+    `rateLimitTier` fields shown in the popup. Other fields in this file
+    (including `refreshToken`) are never read.
   - `~/.claude.json` — the `oauthAccount` subtree only, for `emailAddress`,
     `displayName`, `organizationName`, and `organizationRole` shown in the
     popup. The rest of this file (project history, growth-book features,
@@ -40,6 +41,25 @@ The label changes color as you approach your limits:
 No other secrets are read, no other URLs are contacted, no shell commands are
 executed. See `client.js` — it is the only file that touches the network or
 filesystem.
+
+## Your credentials are never modified
+
+This extension is **strictly read-only** with respect to your Claude data. It
+**opens the credential files for reading only and never writes, edits, moves,
+deletes, or re-saves them** — `~/.claude/.credentials.json` and `~/.claude.json`
+are left byte-for-byte untouched. It does not:
+
+- write, rotate, or refresh your token (the `refreshToken` is never even read);
+- modify any file under `~/.claude/` or anywhere else on your system;
+- send your token, email, or any account data to any server other than
+  `api.anthropic.com` — the same host Claude Code itself uses;
+- run shell commands, `eval`, or any remote code.
+
+Because nothing is ever written back, the extension **cannot corrupt your login,
+log you out, or change anything about your account or usage**. The worst it can
+do is read a couple of fields and show a number in your top bar. If you want to
+verify this, every read and the single network call live in `client.js` — it is
+deliberately the only file that touches your data or the network.
 
 ## Install (development, from this checkout)
 
