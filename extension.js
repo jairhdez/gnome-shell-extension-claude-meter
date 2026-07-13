@@ -289,7 +289,14 @@ const ClaudeMeterIndicator = GObject.registerClass(
 export default class ClaudeMeterExtension extends Extension {
     enable() {
         this._indicator = new ClaudeMeterIndicator(this.path);
-        Main.panel.addToStatusArea('claude-meter', this._indicator);
+        // Agreed panel order, clock -> Quick Settings: claude-voice-control,
+        // claude-meter, plaintasks-bar, net speed. Insert right after
+        // claude-voice-control when it is already in the panel (index 0
+        // otherwise); load order does not matter, the order converges.
+        const voice = Main.panel.statusArea['claude-voice-control']?.container;
+        const siblings = Main.panel._rightBox.get_children();
+        const position = voice ? siblings.indexOf(voice) + 1 : 0;
+        Main.panel.addToStatusArea('claude-meter', this._indicator, position);
     }
 
     disable() {
